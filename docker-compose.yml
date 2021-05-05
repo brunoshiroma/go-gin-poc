@@ -1,0 +1,12 @@
+version: '2.2'
+
+services:
+  postgres:
+    image: postgres:13
+    ports:
+     - "5432:5432"
+    volumes:
+     - ./postgres/data:/var/lib/postgresql/data
+    environment:
+     - POSTGRES_PASSWORD=go
+     - POSTGRES_USER=go
