@@ -1,6 +1,9 @@
 # Projeto de teste da biblioca Gin para api rest do Golang
 Projeto simples, apenas para testar e validar a biblioteca [Gin](https://github.com/gin-gonic/gin)
 
+## Variaveis de ambiente
+Utilizado o godotenv para o desenvolvimento, o repositorio tem o [.env_example](.env_example) como exemplo das variaveis utilizadas
+
 ## Documentação
 Projeto inclui [swagger](http://localhost:60080/swagger/index.html) (o link usa a porta 60080 != da 8080 que é o padrão do Gin, então caso você mude a porta, precisa adequar no link)    
 

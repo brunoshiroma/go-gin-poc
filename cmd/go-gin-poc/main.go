@@ -34,8 +34,10 @@ func main() {
 
 	controller := controller.NewController()
 
+	//agrupa a api com o basepath /api/v1
 	v1 := r.Group("/api/v1")
 	{
+		//agrupa endpoints de client
 		client := v1.Group("/client")
 		{
 			client.GET("", controller.RetriveAllClient)
@@ -45,6 +47,7 @@ func main() {
 		}
 	}
 
+	//configura o swagger.
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// Roda o servidor do Gin, utilizando a porta 8080 padrão ou o definida na ENV PORT

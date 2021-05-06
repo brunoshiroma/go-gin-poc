@@ -18,7 +18,7 @@ import (
 // @Accept  json
 // @Produce  json
 // @Param message body requests.Client true "Client"
-// @Success 200 {object} requests.Client
+// @Success 200 {object} responses.Client
 // @Failure 400 {string} httputil.HTTPError
 // @Failure 404 {string} httputil.HTTPError
 // @Failure 500 {string} httputil.HTTPError
@@ -43,7 +43,7 @@ func (c *Controller) CreateClient(ctx *gin.Context) {
 // @Tags client
 // @Accept  json
 // @Produce  json
-// @Success 200 {array} requests.Client
+// @Success 200 {array} responses.Client
 // @Failure 400 {string} httputil.HTTPError
 // @Failure 404 {string} httputil.HTTPError
 // @Failure 500 {string} httputil.HTTPError
@@ -64,7 +64,7 @@ func (c *Controller) RetriveAllClient(ctx *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Param message body requests.Client true "Client"
-// @Success 200 {object} requests.Client
+// @Success 200 {object} responses.Client
 // @Failure 400 {string} httputil.HTTPError
 // @Failure 404 {string} httputil.HTTPError
 // @Failure 500 {string} httputil.HTTPError
@@ -92,7 +92,7 @@ func (c *Controller) UpdateClient(ctx *gin.Context) {
 // @Accept  json
 // @Produce  json
 // @Param message body requests.Client true "Client"
-// @Success 200 {object} requests.Client
+// @Success 200 {object} responses.Client
 // @Failure 400 {string} httputil.HTTPError
 // @Failure 404 {string} httputil.HTTPError
 // @Failure 500 {string} httputil.HTTPError

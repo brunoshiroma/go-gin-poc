@@ -3,23 +3,34 @@ package service
 import (
 	"github.com/brunoshiroma/go-gin-poc/internal/dao"
 	"github.com/brunoshiroma/go-gin-poc/internal/entity"
+	"github.com/brunoshiroma/go-gin-poc/internal/responses"
 )
 
-func CreateClient(client *entity.Client) {
+func CreateClient(client *entity.Client) *responses.Client {
 	var dao dao.Dao = &dao.SimpleDao{}
 
 	if dao.StartDB() {
 		dao.Create(client)
+		return mapEntityToResponseWithoutDeleteDate(client)
 	}
+
+	return nil
 }
 
-func RetrieveAllClient() []entity.Client {
+func RetrieveAllClient() []responses.Client {
 	var dao dao.Dao = &dao.SimpleDao{}
 
 	if dao.StartDB() {
-		result := make([]entity.Client, 1)
+		resultFromDao := make([]entity.Client, 1)
 
-		dao.GetORM().Find(&result)
+		//busca todos os clientes.
+		dao.GetORM().Find(&resultFromDao)
+
+		result := make([]responses.Client, len(resultFromDao))
+
+		for index, entity := range resultFromDao {
+			result[index] = *mapEntityToResponseWithoutDeleteDate(&entity)
+		}
 
 		return result
 	}
@@ -35,10 +46,23 @@ func DeleteClient(client *entity.Client) {
 	}
 }
 
-func UpdateClient(client *entity.Client) {
+func UpdateClient(client *entity.Client) *responses.Client {
 	var dao dao.Dao = &dao.SimpleDao{}
 
 	if dao.StartDB() {
 		dao.Update(client)
+		return mapEntityToResponseWithoutDeleteDate(client)
+	}
+
+	return nil
+}
+
+func mapEntityToResponseWithoutDeleteDate(client *entity.Client) *responses.Client {
+	return &responses.Client{
+		Id:        client.Id,
+		Name:      client.Name,
+		Email:     client.Email,
+		CreatedAt: client.CreatedAt,
+		UpdatedAt: client.UpdatedAt,
 	}
 }
