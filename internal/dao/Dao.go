@@ -55,17 +55,15 @@ func (s *SimpleDao) StartDB() error {
 }
 
 func (s *SimpleDao) Create(entity interface{}) error {
-
-	tx := s.db.Model(entity).Create(entity)
-	if tx.Error != nil {
-		tx.Rollback()
-		return tx.Error
-	}
-	tx.Commit()
-	if tx.Error != nil {
-		return tx.Error
-	}
-	return nil
+	var err error = nil
+	s.db.Transaction(func(tx *gorm.DB) error {
+		tx.Create(entity)
+		if tx.Error != nil {
+			err = tx.Error
+		}
+		return err
+	})
+	return err
 }
 
 func (s *SimpleDao) Retrieve(e interface{}) ([]interface{}, error) {
@@ -94,29 +92,27 @@ func (s *SimpleDao) Retrieve(e interface{}) ([]interface{}, error) {
 }
 
 func (s *SimpleDao) Update(entity interface{}) error {
-	tx := s.db.Save(entity)
-	if tx.Error != nil {
-		tx.Rollback()
-		return tx.Error
-	}
-	tx.Commit()
-	if tx.Error != nil {
-		return tx.Error
-	}
-	return nil
+	var err error = nil
+	s.db.Transaction(func(tx *gorm.DB) error {
+		tx.Save(entity)
+		if tx.Error != nil {
+			err = tx.Error
+		}
+		return err
+	})
+	return err
 }
 
 func (s *SimpleDao) Delete(entity interface{}) error {
-	tx := s.db.Delete(entity)
-	if tx.Error != nil {
-		tx.Rollback()
-		return tx.Error
-	}
-	tx.Commit()
-	if tx.Error != nil {
-		return tx.Error
-	}
-	return nil
+	var err error = nil
+	s.db.Transaction(func(tx *gorm.DB) error {
+		s.db.Delete(entity)
+		if tx.Error != nil {
+			err = tx.Error
+		}
+		return err
+	})
+	return err
 }
 
 func (s *SimpleDao) GetORM() *gorm.DB {
