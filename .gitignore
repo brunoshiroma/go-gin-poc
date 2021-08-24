@@ -19,3 +19,6 @@ vendor/
 
 # pasta do swag
 docs
+
+#pasta do posgres que roda no docker-compose
+postgres/

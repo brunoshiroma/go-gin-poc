@@ -1,7 +1,11 @@
 package main
 
 import (
+	"log"
+	"os"
+
 	"github.com/brunoshiroma/go-gin-poc/internal/controller"
+	"github.com/brunoshiroma/go-gin-poc/internal/dao"
 
 	"github.com/gin-gonic/gin"
 
@@ -25,14 +29,28 @@ import (
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 
-// @host localhost:60080
+// @host localhost:8080
 // @BasePath /api/v1
 
 func main() {
+
+	var dao dao.Dao = &dao.SimpleDao{}
+	err := dao.StartDB()
+	if err != nil {
+		log.Panic(err)
+	}
+
+	if os.Getenv("DO_GORM_AUTOMIGRATE") == "true" {
+		err = dao.AutoMigrate()
+		if err != nil {
+			log.Panic(err)
+		}
+	}
+
 	// Exemplos do setup do swagger tirado de https://github.com/swaggo/swag/blob/master/example/celler/main.go
 	r := gin.Default()
 
-	controller := controller.NewController()
+	clientController := controller.NewClientController(dao)
 
 	//agrupa a api com o basepath /api/v1
 	v1 := r.Group("/api/v1")
@@ -40,10 +58,10 @@ func main() {
 		//agrupa endpoints de client
 		client := v1.Group("/client")
 		{
-			client.GET("", controller.RetriveAllClient)
-			client.POST("", controller.CreateClient)
-			client.PUT("", controller.UpdateClient)
-			client.DELETE("", controller.DeleteClient)
+			client.GET("", clientController.RetriveAllClient)
+			client.POST("", clientController.CreateClient)
+			client.PUT("", clientController.UpdateClient)
+			client.DELETE("", clientController.DeleteClient)
 		}
 	}
 

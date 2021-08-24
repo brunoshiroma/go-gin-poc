@@ -6,55 +6,53 @@ import (
 	"github.com/brunoshiroma/go-gin-poc/internal/responses"
 )
 
-func CreateClient(client *entity.Client) *responses.Client {
-	var dao dao.Dao = &dao.SimpleDao{}
-
-	if dao.StartDB() {
-		dao.Create(client)
-		return mapEntityToResponseWithoutDeleteDate(client)
-	}
-
-	return nil
+type ClientService struct {
+	dao dao.Dao
 }
 
-func RetrieveAllClient() []responses.Client {
-	var dao dao.Dao = &dao.SimpleDao{}
-
-	if dao.StartDB() {
-		resultFromDao := make([]entity.Client, 1)
-
-		//busca todos os clientes.
-		dao.GetORM().Find(&resultFromDao)
-
-		result := make([]responses.Client, len(resultFromDao))
-
-		for index, entity := range resultFromDao {
-			result[index] = *mapEntityToResponseWithoutDeleteDate(&entity)
-		}
-
-		return result
-	}
-
-	return nil
-}
-
-func DeleteClient(client *entity.Client) {
-	var dao dao.Dao = &dao.SimpleDao{}
-
-	if dao.StartDB() {
-		dao.Delete(client)
+func NewClientService(dao dao.Dao) ClientService {
+	return ClientService{
+		dao: dao,
 	}
 }
 
-func UpdateClient(client *entity.Client) *responses.Client {
-	var dao dao.Dao = &dao.SimpleDao{}
+func (s *ClientService) CreateClient(client *entity.Client) (*responses.Client, error) {
+	err := s.dao.Create(client)
+	if err != nil {
+		return nil, err
+	}
+	return mapEntityToResponseWithoutDeleteDate(client), nil
+}
 
-	if dao.StartDB() {
-		dao.Update(client)
-		return mapEntityToResponseWithoutDeleteDate(client)
+func (s *ClientService) RetrieveAllClient() ([]responses.Client, error) {
+	resultFromDao := make([]entity.Client, 1)
+
+	//busca todos os clientes.
+	tx := s.dao.GetORM().Find(&resultFromDao)
+
+	if tx.Error != nil {
+		return nil, tx.Error
 	}
 
-	return nil
+	result := make([]responses.Client, len(resultFromDao))
+
+	for index, entity := range resultFromDao {
+		result[index] = *mapEntityToResponseWithoutDeleteDate(&entity)
+	}
+
+	return result, nil
+}
+
+func (s *ClientService) DeleteClient(client *entity.Client) error {
+	return s.dao.Delete(client)
+}
+
+func (s *ClientService) UpdateClient(client *entity.Client) (*responses.Client, error) {
+	err := s.dao.Update(client)
+	if err != nil {
+		return nil, err
+	}
+	return mapEntityToResponseWithoutDeleteDate(client), nil
 }
 
 func mapEntityToResponseWithoutDeleteDate(client *entity.Client) *responses.Client {

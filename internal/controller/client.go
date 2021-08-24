@@ -25,12 +25,13 @@ import (
 // @Router /client/ [post]
 func (c *Controller) CreateClient(ctx *gin.Context) {
 	newClient := requests.Client{}
+	clientService := service.NewClientService(c.dao)
 
 	if err := ctx.ShouldBindJSON(&newClient); err != nil {
 		ctx.String(http.StatusBadRequest, err.Error())
 	} else {
 		entityClient := entity.Client{Name: newClient.Name, Email: newClient.Email}
-		service.CreateClient(&entityClient)
+		clientService.CreateClient(&entityClient)
 		ctx.JSON(200, gin.H{
 			"message": fmt.Sprintf("new Client with name %v Created, Id %v", newClient.Name, entityClient.Id),
 		})
@@ -49,12 +50,19 @@ func (c *Controller) CreateClient(ctx *gin.Context) {
 // @Failure 500 {string} httputil.HTTPError
 // @Router /client/ [get]
 func (c *Controller) RetriveAllClient(ctx *gin.Context) {
+	clientService := service.NewClientService(c.dao)
 
-	result := service.RetrieveAllClient()
+	result, err := clientService.RetrieveAllClient()
+	if err != nil {
+		ctx.JSON(500, gin.H{
+			"error": err.Error(),
+		})
+	} else {
+		ctx.JSON(200, gin.H{
+			"data": result,
+		})
+	}
 
-	ctx.JSON(200, gin.H{
-		"data": result,
-	})
 }
 
 // UpdateClient godoc
@@ -70,17 +78,23 @@ func (c *Controller) RetriveAllClient(ctx *gin.Context) {
 // @Failure 500 {string} httputil.HTTPError
 // @Router /client/ [put]
 func (c *Controller) UpdateClient(ctx *gin.Context) {
-
+	clientService := service.NewClientService(c.dao)
 	updateClient := requests.Client{}
 
 	if err := ctx.ShouldBindJSON(&updateClient); err != nil {
 		ctx.String(http.StatusBadRequest, err.Error())
 	} else {
 		entityClient := entity.Client{Name: updateClient.Name, Email: updateClient.Email, Id: updateClient.Id}
-		service.UpdateClient(&entityClient)
-		ctx.JSON(200, gin.H{
-			"message": fmt.Sprintf("Client with Id %v updated", entityClient.Id),
-		})
+		_, err := clientService.UpdateClient(&entityClient)
+		if err != nil {
+			ctx.JSON(500, gin.H{
+				"error": err.Error(),
+			})
+		} else {
+			ctx.JSON(200, gin.H{
+				"message": fmt.Sprintf("Client with Id %v updated", entityClient.Id),
+			})
+		}
 	}
 
 }
@@ -98,17 +112,24 @@ func (c *Controller) UpdateClient(ctx *gin.Context) {
 // @Failure 500 {string} httputil.HTTPError
 // @Router /client/ [delete]
 func (c *Controller) DeleteClient(ctx *gin.Context) {
-
+	clientService := service.NewClientService(c.dao)
 	deleteClient := requests.Client{}
 
 	if err := ctx.ShouldBindJSON(&deleteClient); err != nil {
 		ctx.String(http.StatusBadRequest, err.Error())
 	} else {
 		entityClient := entity.Client{Name: deleteClient.Name, Email: deleteClient.Email, Id: deleteClient.Id}
-		service.DeleteClient(&entityClient)
-		ctx.JSON(200, gin.H{
-			"message": fmt.Sprintf("Client with Id %v deleted", entityClient.Id),
-		})
+		err := clientService.DeleteClient(&entityClient)
+		if err != nil {
+			ctx.JSON(500, gin.H{
+				"error": err.Error(),
+			})
+		} else {
+			ctx.JSON(200, gin.H{
+				"message": fmt.Sprintf("Client with Id %v deleted", entityClient.Id),
+			})
+		}
+
 	}
 
 }

@@ -1,8 +1,7 @@
 package dao
 
 import (
-	"math/rand"
-
+	"github.com/brunoshiroma/go-gin-poc/internal/entity"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -14,23 +13,26 @@ import (
 )
 
 type Dao interface {
-	StartDB() bool
-	Create(entity interface{})
-	Retrieve(entity interface{}) []interface{}
-	Update(entity interface{})
-	Delete(entity interface{})
+	AutoMigrate() error
+	StartDB() error
+	Create(entity interface{}) error
+	Retrieve(entity interface{}) ([]interface{}, error)
+	Update(entity interface{}) error
+	Delete(entity interface{}) error
 	GetORM() *gorm.DB
 }
 
 type SimpleDao struct {
 	db *gorm.DB
-	id int64
 }
 
-func (s *SimpleDao) StartDB() bool {
+func (s *SimpleDao) AutoMigrate() error {
+	return s.db.AutoMigrate(&entity.Client{})
+}
+
+func (s *SimpleDao) StartDB() error {
 
 	if s.db == nil {
-		s.id = rand.Int63()
 		dbPort, _ := os.LookupEnv("DB_PORT")
 		dbHost, _ := os.LookupEnv("DB_HOST")
 		dbUser, _ := os.LookupEnv("DB_USER")
@@ -45,19 +47,28 @@ func (s *SimpleDao) StartDB() bool {
 		})
 
 		if err != nil {
-			log.Printf("Error starting connection with DB, %v", err.Error())
-			return false
+			return err
 		}
 	}
 
-	return true
+	return nil
 }
 
-func (s *SimpleDao) Create(entity interface{}) {
-	s.db.Model(entity).Create(entity).Commit()
+func (s *SimpleDao) Create(entity interface{}) error {
+
+	tx := s.db.Model(entity).Create(entity)
+	if tx.Error != nil {
+		tx.Rollback()
+		return tx.Error
+	}
+	tx.Commit()
+	if tx.Error != nil {
+		return tx.Error
+	}
+	return nil
 }
 
-func (s *SimpleDao) Retrieve(e interface{}) []interface{} {
+func (s *SimpleDao) Retrieve(e interface{}) ([]interface{}, error) {
 
 	entityType := reflect.TypeOf(e)
 
@@ -77,17 +88,35 @@ func (s *SimpleDao) Retrieve(e interface{}) []interface{} {
 
 	if dbResult.Error != nil {
 		log.Printf("Error on retrieve all %v", dbResult.Error)
+		return nil, dbResult.Error
 	}
+	return nil, nil
+}
 
+func (s *SimpleDao) Update(entity interface{}) error {
+	tx := s.db.Save(entity)
+	if tx.Error != nil {
+		tx.Rollback()
+		return tx.Error
+	}
+	tx.Commit()
+	if tx.Error != nil {
+		return tx.Error
+	}
 	return nil
 }
 
-func (s *SimpleDao) Update(entity interface{}) {
-	s.db.Save(entity)
-}
-
-func (s *SimpleDao) Delete(entity interface{}) {
-	s.db.Delete(entity)
+func (s *SimpleDao) Delete(entity interface{}) error {
+	tx := s.db.Delete(entity)
+	if tx.Error != nil {
+		tx.Rollback()
+		return tx.Error
+	}
+	tx.Commit()
+	if tx.Error != nil {
+		return tx.Error
+	}
+	return nil
 }
 
 func (s *SimpleDao) GetORM() *gorm.DB {
