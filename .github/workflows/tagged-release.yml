@@ -20,8 +20,6 @@ jobs:
           run: make swag
         - name: build windows amd64
           run: GOOS=windows GOARCH=amd64 go build -o go-gin-poc-win-x64.exe cmd/go-gin-poc/main.go
-        - name: build windows i386
-          run: GOOS=windows GOARCH=386 go build -o go-gin-poc-win.exe cmd/go-gin-poc/main.go
         - name: build linux amd64
           run: GOOS=linux GOARCH=amd64 go build -o go-gin-poc-linux-x64 cmd/go-gin-poc/main.go
         - name: build linux i386
