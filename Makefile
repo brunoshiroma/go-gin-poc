@@ -1,6 +1,6 @@
 #baixa e roda o swag para gerar a pasta docs, usado posteriormente pelo swagger
 swag:
-	go get github.com/swaggo/swag/cmd/swag
+	go install github.com/swaggo/swag/cmd/swag@latest
 	swag init -g cmd/go-gin-poc/main.go
 
 #baixa e atualiza as dependencias do go mod
