@@ -7,6 +7,7 @@
 *.dll
 *.so
 *.dylib
+go-gin-poc
 
 # Test binary, built with `go test -c`
 *.test
@@ -22,3 +23,6 @@ docs
 
 #pasta do posgres que roda no docker-compose
 postgres/
+
+# arquivo do sqlite
+go_gin.db

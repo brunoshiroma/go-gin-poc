@@ -2,6 +2,7 @@ package dao
 
 import (
 	"github.com/brunoshiroma/go-gin-poc/internal/entity"
+	"github.com/glebarez/sqlite"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -38,13 +39,21 @@ func (s *SimpleDao) StartDB() error {
 		dbUser, _ := os.LookupEnv("DB_USER")
 		dbPass, _ := os.LookupEnv("DB_PASS")
 		dbName, _ := os.LookupEnv("DB_NAME")
+		dbFile, _ := os.LookupEnv("DB_FILE")
 
 		var err error
 
 		dsn := fmt.Sprintf("host=%s user=%s password=%s port=%s dbname=%v", dbHost, dbUser, dbPass, dbPort, dbName)
-		s.db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
-			Logger: logger.Default.LogMode(logger.Info),
-		})
+
+		if dbFile != "" {
+			s.db, err = gorm.Open(sqlite.Open(dbFile), &gorm.Config{
+				Logger: logger.Default.LogMode(logger.Info),
+			})
+		} else {
+			s.db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
+				Logger: logger.Default.LogMode(logger.Info),
+			})
+		}
 
 		if err != nil {
 			return err
