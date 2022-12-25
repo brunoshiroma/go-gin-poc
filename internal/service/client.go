@@ -7,10 +7,10 @@ import (
 )
 
 type ClientService struct {
-	dao dao.Dao
+	dao dao.Dao[*entity.Client]
 }
 
-func NewClientService(dao dao.Dao) ClientService {
+func NewClientService(dao dao.Dao[*entity.Client]) ClientService {
 	return ClientService{
 		dao: dao,
 	}
@@ -25,22 +25,15 @@ func (s *ClientService) CreateClient(client *entity.Client) (*responses.Client, 
 }
 
 func (s *ClientService) RetrieveAllClient() ([]responses.Client, error) {
-	resultFromDao := make([]entity.Client, 1)
-
-	//busca todos os clientes.
-	tx := s.dao.GetORM().Find(&resultFromDao)
-
-	if tx.Error != nil {
-		return nil, tx.Error
-	}
+	resultFromDao, err := s.dao.Retrieve(&entity.Client{})
 
 	result := make([]responses.Client, len(resultFromDao))
 
 	for index, entity := range resultFromDao {
-		result[index] = *mapEntityToResponseWithoutDeleteDate(&entity)
+		result[index] = *mapEntityToResponseWithoutDeleteDate(entity)
 	}
 
-	return result, nil
+	return result, err
 }
 
 func (s *ClientService) DeleteClient(client *entity.Client) error {

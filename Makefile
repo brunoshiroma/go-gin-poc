@@ -11,10 +11,8 @@ dep:
 build: swag dep
 	go build -o go-gin-poc cmd/go-gin-poc/main.go
 
-#faz o build da imagem docker e faz o push para o repository docker do heroku
-build-heroku:
-	heroku container:push web -a go-gin-poc
+test:
+	go test -cover -coverprofile=coverage.out ./...
 
-#faz o release/deploy da versão mais atual da imagem
-deploy-heroku: build-heroku
-	heroku container:release web -a go-gin-poc
+test-with-report: test
+	go tool cover -html=coverage.out

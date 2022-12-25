@@ -1,7 +1,9 @@
 package dao
 
 import (
+	config "github.com/brunoshiroma/go-gin-poc/internal"
 	"github.com/brunoshiroma/go-gin-poc/internal/entity"
+
 	"github.com/glebarez/sqlite"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -9,47 +11,43 @@ import (
 
 	"fmt"
 	"log"
-	"os"
-	"reflect"
 )
 
-type Dao interface {
+type Dao[E interface{}] interface {
 	AutoMigrate() error
 	StartDB() error
-	Create(entity interface{}) error
-	Retrieve(entity interface{}) ([]interface{}, error)
-	Update(entity interface{}) error
-	Delete(entity interface{}) error
+	Create(entity E) error
+	Retrieve(entity E, filters ...interface{}) ([]E, error)
+	Update(entity E) error
+	Delete(entity E) error
 	GetORM() *gorm.DB
 }
 
-type SimpleDao struct {
+type SimpleDao[E interface{}] struct {
 	db *gorm.DB
 }
 
-func (s *SimpleDao) AutoMigrate() error {
+func (s *SimpleDao[E]) AutoMigrate() error {
 	return s.db.AutoMigrate(&entity.Client{})
 }
 
-func (s *SimpleDao) StartDB() error {
+func (s *SimpleDao[E]) StartDB() error {
 
 	if s.db == nil {
-		dbPort, _ := os.LookupEnv("DB_PORT")
-		dbHost, _ := os.LookupEnv("DB_HOST")
-		dbUser, _ := os.LookupEnv("DB_USER")
-		dbPass, _ := os.LookupEnv("DB_PASS")
-		dbName, _ := os.LookupEnv("DB_NAME")
-		dbFile, _ := os.LookupEnv("DB_FILE")
-
 		var err error
 
-		dsn := fmt.Sprintf("host=%s user=%s password=%s port=%s dbname=%v", dbHost, dbUser, dbPass, dbPort, dbName)
-
-		if dbFile != "" {
-			s.db, err = gorm.Open(sqlite.Open(dbFile), &gorm.Config{
+		if config.Env.DbFile != "" {
+			s.db, err = gorm.Open(sqlite.Open(config.Env.DbFile), &gorm.Config{
 				Logger: logger.Default.LogMode(logger.Info),
 			})
 		} else {
+			dsn := fmt.Sprintf("host=%s user=%s password=%s port=%d dbname=%v",
+				config.Env.DbHost,
+				config.Env.DbUser,
+				config.Env.DbPass,
+				config.Env.DbPort,
+				config.Env.DbName,
+			)
 			s.db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
 				Logger: logger.Default.LogMode(logger.Info),
 			})
@@ -63,10 +61,10 @@ func (s *SimpleDao) StartDB() error {
 	return nil
 }
 
-func (s *SimpleDao) Create(entity interface{}) error {
+func (s *SimpleDao[E]) Create(e E) error {
 	var err error = nil
 	s.db.Transaction(func(tx *gorm.DB) error {
-		tx.Create(entity)
+		tx.Create(e)
 		if tx.Error != nil {
 			err = tx.Error
 		}
@@ -75,32 +73,20 @@ func (s *SimpleDao) Create(entity interface{}) error {
 	return err
 }
 
-func (s *SimpleDao) Retrieve(e interface{}) ([]interface{}, error) {
+func (s *SimpleDao[E]) Retrieve(e E, filter ...interface{}) ([]E, error) {
+	var result = make([]E, 0)
 
-	entityType := reflect.TypeOf(e)
-
-	arrayType := reflect.ArrayOf(1, entityType)
-	arrayInstance := reflect.New(arrayType)
-	arrayElem := arrayInstance.Elem()
-	arrayInterface := arrayElem.Interface()
-
-	dbResult := s.db.Model(e).Find(&arrayElem)
-
-	log.Printf("I %v", arrayInterface)
-
-	for index := 0; index < arrayElem.Len(); index++ {
-		value := arrayElem.Index(index)
-		log.Printf("Value %v", value)
-	}
+	dbResult := s.db.Model(e).Find(&result, filter...)
 
 	if dbResult.Error != nil {
 		log.Printf("Error on retrieve all %v", dbResult.Error)
 		return nil, dbResult.Error
 	}
-	return nil, nil
+
+	return result, nil
 }
 
-func (s *SimpleDao) Update(entity interface{}) error {
+func (s *SimpleDao[E]) Update(entity E) error {
 	var err error = nil
 	s.db.Transaction(func(tx *gorm.DB) error {
 		tx.Save(entity)
@@ -112,7 +98,7 @@ func (s *SimpleDao) Update(entity interface{}) error {
 	return err
 }
 
-func (s *SimpleDao) Delete(entity interface{}) error {
+func (s *SimpleDao[E]) Delete(entity E) error {
 	var err error = nil
 	s.db.Transaction(func(tx *gorm.DB) error {
 		s.db.Delete(entity)
@@ -124,6 +110,6 @@ func (s *SimpleDao) Delete(entity interface{}) error {
 	return err
 }
 
-func (s *SimpleDao) GetORM() *gorm.DB {
+func (s *SimpleDao[E]) GetORM() *gorm.DB {
 	return s.db
 }

@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/brunoshiroma/go-gin-poc/internal/dao"
 	"github.com/brunoshiroma/go-gin-poc/internal/entity"
 	"github.com/brunoshiroma/go-gin-poc/internal/requests"
 	"github.com/brunoshiroma/go-gin-poc/internal/service"
@@ -22,10 +23,10 @@ import (
 // @Failure 400 {string} httputil.HTTPError
 // @Failure 404 {string} httputil.HTTPError
 // @Failure 500 {string} httputil.HTTPError
-// @Router /client/ [post]
-func (c *Controller) CreateClient(ctx *gin.Context) {
+// @Router /client [post]
+func (c *Controller[E]) CreateClient(ctx *gin.Context) {
 	newClient := requests.Client{}
-	clientService := service.NewClientService(c.dao)
+	clientService := service.NewClientService(c.dao.(dao.Dao[*entity.Client]))
 
 	if err := ctx.ShouldBindJSON(&newClient); err != nil {
 		ctx.String(http.StatusBadRequest, err.Error())
@@ -48,9 +49,9 @@ func (c *Controller) CreateClient(ctx *gin.Context) {
 // @Failure 400 {string} httputil.HTTPError
 // @Failure 404 {string} httputil.HTTPError
 // @Failure 500 {string} httputil.HTTPError
-// @Router /client/ [get]
-func (c *Controller) RetriveAllClient(ctx *gin.Context) {
-	clientService := service.NewClientService(c.dao)
+// @Router /client [get]
+func (c *Controller[E]) RetriveAllClient(ctx *gin.Context) {
+	clientService := service.NewClientService(c.dao.(dao.Dao[*entity.Client]))
 
 	result, err := clientService.RetrieveAllClient()
 	if err != nil {
@@ -76,9 +77,9 @@ func (c *Controller) RetriveAllClient(ctx *gin.Context) {
 // @Failure 400 {string} httputil.HTTPError
 // @Failure 404 {string} httputil.HTTPError
 // @Failure 500 {string} httputil.HTTPError
-// @Router /client/ [put]
-func (c *Controller) UpdateClient(ctx *gin.Context) {
-	clientService := service.NewClientService(c.dao)
+// @Router /client [put]
+func (c *Controller[E]) UpdateClient(ctx *gin.Context) {
+	clientService := service.NewClientService(c.dao.(dao.Dao[*entity.Client]))
 	updateClient := requests.Client{}
 
 	if err := ctx.ShouldBindJSON(&updateClient); err != nil {
@@ -110,9 +111,9 @@ func (c *Controller) UpdateClient(ctx *gin.Context) {
 // @Failure 400 {string} httputil.HTTPError
 // @Failure 404 {string} httputil.HTTPError
 // @Failure 500 {string} httputil.HTTPError
-// @Router /client/ [delete]
-func (c *Controller) DeleteClient(ctx *gin.Context) {
-	clientService := service.NewClientService(c.dao)
+// @Router /client [delete]
+func (c *Controller[E]) DeleteClient(ctx *gin.Context) {
+	clientService := service.NewClientService(c.dao.(dao.Dao[*entity.Client]))
 	deleteClient := requests.Client{}
 
 	if err := ctx.ShouldBindJSON(&deleteClient); err != nil {
