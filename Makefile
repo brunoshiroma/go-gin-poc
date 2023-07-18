@@ -16,3 +16,5 @@ test:
 
 test-with-report: test
 	go tool cover -html=coverage.out
+
+coverage: test
