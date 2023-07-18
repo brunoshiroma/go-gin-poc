@@ -21,7 +21,6 @@ jobs:
               -Dsonar.organization=brunoshiroma
               -Dsonar.projectKey=brunoshiroma_go-proxy
               -Dsonar.go.coverage.reportPaths=coverage.out
-              -Dsonar.sources=cmd,internal
           env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
