@@ -1,4 +1,4 @@
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=brunoshiroma_go-proxy&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=brunoshiroma_go-proxy)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=brunoshiroma_go-gin-poc&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=brunoshiroma_go-gin-poc)
 # Projeto de teste da biblioca Gin para api rest do Golang
 Projeto simples, apenas para testar e validar a biblioteca [Gin](https://github.com/gin-gonic/gin)
 

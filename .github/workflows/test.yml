@@ -19,7 +19,7 @@ jobs:
           with:
             args: >
               -Dsonar.organization=brunoshiroma
-              -Dsonar.projectKey=brunoshiroma_go-proxy
+              -Dsonar.projectKey=brunoshiroma_go-gin-poc
               -Dsonar.go.coverage.reportPaths=coverage.out
           env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
