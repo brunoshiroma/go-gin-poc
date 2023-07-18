@@ -19,10 +19,11 @@ COPY Makefile .
 
 # roda o make build
 RUN make build
-USER nonroot
 
 # imagem para o nosso "runtime", utilizado o alpine "puro"
 FROM alpine AS runtime
+
+USER nonroot
 
 WORKDIR /app
 
