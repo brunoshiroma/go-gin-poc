@@ -9,8 +9,18 @@ jobs:
       steps:
         - uses: actions/checkout@v3
         - name: Setup go
-          uses: actions/setup-go@v3
+          uses: actions/setup-go@v4
           with:
-            go-version: 1.19
+            go-version: '1.20'
         - run: make build
         - run: make test
+        - name: SonarCloud Scan
+          uses: sonarsource/sonarcloud-github-action@master
+          with:
+            args: >
+              -Dsonar.organization=brunoshiroma
+              -Dsonar.projectKey=brunoshiroma_go-gin-poc
+              -Dsonar.go.coverage.reportPaths=coverage.out
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

@@ -1,5 +1,5 @@
 # imagem utilizada para o build
-FROM golang:alpine as build
+FROM golang:alpine AS build
 
 # atualiza os repos do alpine
 RUN apk update
@@ -21,7 +21,9 @@ COPY Makefile .
 RUN make build
 
 # imagem para o nosso "runtime", utilizado o alpine "puro"
-FROM alpine as runtime
+FROM alpine AS runtime
+
+USER nonroot
 
 WORKDIR /app
 
