@@ -13,7 +13,7 @@ build: swag dep
 
 test:
 	go test ./...
-	go test -coverpkg=./... -coverprofile=coverage.out $$(go list -f '{{if or (gt (len .TestGoFiles) 0) (gt (len .XTestGoFiles) 0)}}{{.ImportPath}}{{end}}' ./...)
+	go test -coverpkg=./... -coverprofile=coverage.out $$(go list -f '{{if or (gt (len .TestGoFiles) 0) (gt (len .XTestGoFiles) 0)}}{{.ImportPath}}{{end}}' ./... | grep .)
 
 test-with-report: test
 	go tool cover -html=coverage.out
