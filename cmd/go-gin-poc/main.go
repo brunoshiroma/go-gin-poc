@@ -57,7 +57,7 @@ func main() {
 
 	corsConfig := cors.DefaultConfig()
 	corsConfig.AllowAllOrigins = true
-	corsConfig.AllowCredentials = true
+	corsConfig.AllowCredentials = false
 	corsConfig.AddAllowHeaders("Access-Control-Allow-Origin")
 
 	r.Use(cors.New(corsConfig))
