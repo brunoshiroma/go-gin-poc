@@ -12,7 +12,8 @@ build: swag dep
 	go build -o go-gin-poc cmd/go-gin-poc/main.go
 
 test:
-	go test -cover -coverprofile=coverage.out ./...
+	go test ./...
+	go test -cover -coverprofile=coverage.out ./internal/dao
 
 test-with-report: test
 	go tool cover -html=coverage.out
