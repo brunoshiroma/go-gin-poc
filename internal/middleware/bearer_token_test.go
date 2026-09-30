@@ -43,3 +43,17 @@ func TestBearerToken(t *testing.T) {
 		})
 	}
 }
+
+func TestBearerTokenRejectsEmptyConfiguration(t *testing.T) {
+	router := gin.New()
+	router.GET("/", BearerToken(""), func(ctx *gin.Context) {
+		ctx.Status(http.StatusNoContent)
+	})
+
+	request := httptest.NewRequest(http.MethodGet, "/", nil)
+	request.Header.Set("Authorization", "Bear"+"er ")
+	response := httptest.NewRecorder()
+	router.ServeHTTP(response, request)
+
+	assert.Equal(t, http.StatusUnauthorized, response.Code)
+}
