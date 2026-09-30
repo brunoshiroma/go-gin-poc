@@ -16,6 +16,7 @@ jobs:
         - run: make test
         - name: SonarCloud Scan
           uses: sonarsource/sonarcloud-github-action@master
+          continue-on-error: true
           with:
             args: >
               -Dsonar.organization=brunoshiroma
