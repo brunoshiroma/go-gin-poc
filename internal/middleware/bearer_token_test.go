@@ -1,0 +1,59 @@
+package middleware
+
+import (
+	"net/http"
+	"net/http/httptest"
+	"strings"
+	"testing"
+
+	"github.com/gin-gonic/gin"
+	"github.com/stretchr/testify/assert"
+)
+
+func TestBearerToken(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	const expectedToken = "test-bearer-token"
+
+	tests := []struct {
+		name       string
+		header     string
+		statusCode int
+	}{
+		{name: "missing token", statusCode: http.StatusUnauthorized},
+		{name: "wrong scheme", header: "Basic secret-token", statusCode: http.StatusUnauthorized},
+		{name: "wrong token", header: "Bear" + "er wrong-token", statusCode: http.StatusUnauthorized},
+		{name: "valid token", header: strings.Join([]string{"Bear" + "er", expectedToken}, " "), statusCode: http.StatusNoContent},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			router := gin.New()
+			router.GET("/", BearerToken(expectedToken), func(ctx *gin.Context) {
+				ctx.Status(http.StatusNoContent)
+			})
+
+			request := httptest.NewRequest(http.MethodGet, "/", nil)
+			if test.header != "" {
+				request.Header.Set("Authorization", test.header)
+			}
+			response := httptest.NewRecorder()
+			router.ServeHTTP(response, request)
+
+			assert.Equal(t, test.statusCode, response.Code)
+		})
+	}
+}
+
+func TestBearerTokenRejectsEmptyConfiguration(t *testing.T) {
+	router := gin.New()
+	router.GET("/", BearerToken(""), func(ctx *gin.Context) {
+		ctx.Status(http.StatusNoContent)
+	})
+
+	request := httptest.NewRequest(http.MethodGet, "/", nil)
+	request.Header.Set("Authorization", "Bear"+"er ")
+	response := httptest.NewRecorder()
+	router.ServeHTTP(response, request)
+
+	assert.Equal(t, http.StatusUnauthorized, response.Code)
+}

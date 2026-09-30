@@ -5,6 +5,8 @@ Projeto simples, apenas para testar e validar a biblioteca [Gin](https://github.
 ## Variaveis de ambiente
 Utilizado o godotenv para o desenvolvimento, o repositorio tem o [.env_example](.env_example) como exemplo das variaveis utilizadas
 
+Configure `API_TOKEN` com um segredo aleatório de pelo menos 32 caracteres antes de iniciar a aplicação (por exemplo, gere-o com `openssl rand -hex 32`). Todas as rotas `/api/v1/client` verificam o token enviado no cabeçalho `Authorization`. A aplicação não inicia se o token estiver ausente ou for curto demais. Configure também uma senha forte em `DB_PASS` antes de iniciar o PostgreSQL com Docker Compose; a porta do banco fica acessível apenas localmente.
+
 ## Documentação
 Projeto inclui [swagger](http://localhost:60080/swagger/index.html) (o link usa a porta 60080 != da 8080 que é o padrão do Gin, então caso você mude a porta, precisa adequar no link)    
 

@@ -15,8 +15,9 @@ type Environment struct {
 	DbPass      string `env:"DB_PASS"`
 	DbName      string `env:"DB_NAME"`
 	PORT        int    `env:"PORT"`
-	HOST        string `env:"HOST,default=0.0.0.0"`
+	HOST        string `env:"HOST,default=127.0.0.1"`
 	SwaggerHost string `env:"SWAGGER_HOST,default=127.0.0.1"`
+	ApiToken    string `env:"API_TOKEN"`
 }
 
 var Env Environment

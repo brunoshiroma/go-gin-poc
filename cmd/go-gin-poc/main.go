@@ -9,6 +9,7 @@ import (
 	"github.com/brunoshiroma/go-gin-poc/internal/controller"
 	"github.com/brunoshiroma/go-gin-poc/internal/dao"
 	"github.com/brunoshiroma/go-gin-poc/internal/entity"
+	"github.com/brunoshiroma/go-gin-poc/internal/middleware"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -37,6 +38,10 @@ import (
 // @BasePath /api/v1
 
 func main() {
+	if len(config.Env.ApiToken) < 32 {
+		log.Fatal("API_TOKEN must be configured with at least 32 characters")
+	}
+
 	docs.SwaggerInfo.Host = fmt.Sprintf("%s:%d", config.Env.SwaggerHost, config.Env.PORT)
 
 	var dao dao.Dao[*entity.Client] = &dao.SimpleDao[*entity.Client]{}
@@ -68,7 +73,7 @@ func main() {
 	v1 := r.Group("/api/v1")
 	{
 		//agrupa endpoints de client
-		client := v1.Group("/client")
+		client := v1.Group("/client", middleware.BearerToken(config.Env.ApiToken))
 		{
 			client.GET("", clientController.RetriveAllClient)
 			client.POST("", clientController.CreateClient)

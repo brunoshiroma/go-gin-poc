@@ -22,10 +22,11 @@ RUN make build
 
 # imagem para o nosso "runtime", utilizado o alpine "puro"
 FROM alpine AS runtime
-
+FROM alpine AS runtime
 USER nonroot
-
+USER nonroot
 WORKDIR /app
+ENV HOST=0.0.0.0
 
 # copia o binario gerado no estagio de build, para o nosso estagio de runtime
 COPY --from=build /go/github.com/brunoshiroma/go-gin-poc/go-gin-poc go-gin-poc
